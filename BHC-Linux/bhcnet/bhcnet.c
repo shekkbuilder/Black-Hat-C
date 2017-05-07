@@ -9,9 +9,13 @@ Author          : Milton Valencia (wetw0rk)
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
 Description     : Basically a custom netcat just like bhpnet. Since
-                  depending on file size if uploading a file change
-		  the RESP_SIZE accordingly. Tested binarys and .txt
-                  files.
+		  the goal is to replicate the structure like bhpnet
+                  i did not include any custom options, however they
+                  can be easily installed by you; the user. This is a
+		  great "skeleton" for something much bigger if you
+                  would like to take it that route. Note: depending
+		  on file size, if uploading a file change the RESP_SIZE
+                  accordingly. Tested binarys and .txt files.
 
 */
 
@@ -143,7 +147,7 @@ void * client_handler(void * tcp_socket)
 }
 
 // this is for incoming connections
-int server_loop(int pflag)
+int server_loop(char * tflag, int pflag)
 {
 	int tcp_socket,new_socket, c, *nsock;
 	struct sockaddr_in server, client;
@@ -151,7 +155,17 @@ int server_loop(int pflag)
 	tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
 
 	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = INADDR_ANY; // we listen on all interfaces
+
+	// if no target is defined, we listen on all interfaces
+	if (tflag == NULL)
+	{
+		server.sin_addr.s_addr = INADDR_ANY;
+	}
+	else if (tflag != NULL)
+	{
+		server.sin_addr.s_addr = inet_addr(tflag);
+	}
+
 	server.sin_port = htons(pflag);
 
 	bind(tcp_socket,(struct sockaddr *)&server, sizeof(server));
@@ -224,14 +238,14 @@ void usage(void)
 {
 	printf("BHC Net Tool\n\n");
 	printf("Usage: bhcnet -t target_host -p port\n");
-	printf("-l --listen              - listen on [host]:[port] for incoming connections\n");
-	printf("-e --execute file_to_run - execute the given file upon receiving a connection\n");
-	printf("-c --command             - initialize a command shell\n");
-	printf("-u --upload destination  - upon receiving a connection upload a file and write to [destination]\n\n");
+	printf("-l --listen                - listen on [host]:[port] for incoming connections\n");
+	printf("-e --execute <file_to_run> - execute the given file upon receiving a connection\n");
+	printf("-c --command               - initialize a command shell\n");
+	printf("-u --upload <destination>  - upon receiving a connection upload a file and write to [destination]\n\n");
 	printf("Examples:\n");
 	printf("bhcnet -t 192.168.0.1 -p 5555 -l -c\n");
-	printf("bhcnet -t 192.168.0.1 -p 5555 -l -u /root/exploit.out\n");
-	printf("bhcnet -t 192.168.0.1 -p 5555 -l -e cat /etc/passwd\n");
+	printf("bhpnet.py -t 192.168.0.1 -p 5555 -l -u C:\\target.exe\n");
+	printf("bhpnet.py -t 192.168.0.1 -p 5555 -l -e \"cat /etc/passwd\"\n");
 	printf("echo 'ABCDEFGHI' | ./bhcnet -t 192.168.11.12 -p 135\n");
 	exit(1);
 }
@@ -284,7 +298,7 @@ int main(int argc, char * argv[])
 	}
 
 	// are we going to listen or just send data from stdin?
-	if (tflag != 0 && pflag > 0)
+	if (tflag != 0 && pflag > 0 && lflag == 0)
 	{
 		// read in buffer from the command line
 		// this will block, so send CTRL-D if not sending input
@@ -300,6 +314,6 @@ int main(int argc, char * argv[])
 	// depending on our command line options above
 	if (lflag > 0 && pflag > 0)
 	{
-		server_loop(pflag);
+		server_loop(tflag, pflag);
 	}
 }
