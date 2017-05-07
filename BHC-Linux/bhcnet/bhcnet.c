@@ -238,14 +238,14 @@ void usage(void)
 {
 	printf("BHC Net Tool\n\n");
 	printf("Usage: bhcnet -t target_host -p port\n");
-	printf("-l --listen                - listen on [host]:[port] for incoming connections\n");
-	printf("-e --execute <file_to_run> - execute the given file upon receiving a connection\n");
-	printf("-c --command               - initialize a command shell\n");
-	printf("-u --upload <destination>  - upon receiving a connection upload a file and write to [destination]\n\n");
+	printf("-l --listen              - listen on [host]:[port] for incoming connections\n");
+	printf("-e --execute file_to_run - execute the given file upon receiving a connection\n");
+	printf("-c --command             - initialize a command shell\n");
+	printf("-u --upload destination  - upon receiving a connection upload a file and write to [destination]\n\n");
 	printf("Examples:\n");
 	printf("bhcnet -t 192.168.0.1 -p 5555 -l -c\n");
-	printf("bhpnet.py -t 192.168.0.1 -p 5555 -l -u C:\\target.exe\n");
-	printf("bhpnet.py -t 192.168.0.1 -p 5555 -l -e \"cat /etc/passwd\"\n");
+	printf("bhcnet -t 192.168.0.1 -p 5555 -l -u C:\\target.exe\n");
+	printf("bhcnet -t 192.168.0.1 -p 5555 -l -e \"cat /etc/passwd\"\n");
 	printf("echo 'ABCDEFGHI' | ./bhcnet -t 192.168.11.12 -p 135\n");
 	exit(1);
 }

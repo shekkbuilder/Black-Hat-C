@@ -1,2 +1,2 @@
-udp_client: udp_client.c
-	gcc udp_client.c -o udp_client
+udp-client: udp-client.c
+	gcc udp-client.c -o udp-client

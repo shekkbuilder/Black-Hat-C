@@ -1,2 +1,2 @@
-tcp_client: tcp_client.c
-	gcc tcp_client.c -o tcp_client
+tcp-client: tcp-client.c
+	gcc tcp-client.c -o tcp-client
