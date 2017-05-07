@@ -1,34 +1,33 @@
 /*
 
-Executable name : udp_client
-Version         : 3.0
-Created date    : 4/5/2017
-Last update     : 3/20/2017
+Executable name : udp_wclient
+Designed OS     : Windows
+Version         : 1.0
+Created date    : 5/2/2017
+Last update     : 5/2/2017
 Author          : Milton Valencia (wetw0rk)
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
 Description     : A simple UDP client that connects to localhost
-                  and sends a message, once send awaits a response.
-
-Build using these commands: (Note: using Kali GNU/Linux Rolling 64-bit)
-	gcc udp_client.c -o udp_client
+		  and sends a message, once send awaits a response.
 
 */
 
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
+#include <winsock2.h>
 
 #define TARGET_HOST "127.0.0.1"
 #define TARGET_PORT 7891
 
 int main()
 {
-	int udp_socket;
+	WSADATA wsa;
+	SOCKET udp_socket;
 	struct sockaddr_in server;
 	char * data, response[2000];
+
+	// Initialise Winsock
+	WSAStartup(MAKEWORD(2,2),&wsa);
 
 	// UDP Socket (AF_INET -> IPV4, SOCK_DGRAM -> UDP, 0 -> IP protocol)
 	udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
@@ -50,4 +49,3 @@ int main()
 
 	return(0);
 }
-
