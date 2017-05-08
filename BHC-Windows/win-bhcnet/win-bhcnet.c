@@ -9,14 +9,13 @@ Author          : Milton Valencia (wetw0rk)
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
 Description     : Took less than 30min to write. Not bragging but
-                  again this is why I wanted to do this project;
-                  easy reference dont think about bhcnet. Think of the
-                  what could be built upon this. what you could create!
+                  again this is why I wanted to do this project; for an
+                  easy reference dont think about bhcnet. Think of
+                  what could be built upon this, what you could create!
                   Incase its not obvous this is a custom netcat designed
-		  for windows
+		  for windows. VirusTotal reported 0/60 Anti Virus detection.
 
 */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,41 +43,33 @@ char * run_command(char response[RESP_SIZE])
 
 	char buff[RESP_SIZE];
 
-	// loop and size of array
-	int i=0, size_of_array;
-	// array for captured buffer
-	char A[1000][1000];
-	// store the array into a string
-	static char string[1000];
+	int i=0, size_of_array;			// loop and size of array
+	char A[1000][1000];			// array for captured buffer
+	static char string[1000];		// store the array into a string
 
-	// zero out
-	memset(string,0,sizeof(string));
+	memset(string,0,sizeof(string));	// zero out
 
-	// run the command and get the output back
-	run = _popen(response, "r");
+	run = _popen(response, "r");		// run the command
 
-	while(fgets(buff, sizeof(buff), run)!=NULL)
-	{
-		// copy buff into array
-		strcpy(A[i], buff);
-		i++;
+	while(fgets(buff, sizeof(buff), run)!=NULL)	// loop and then
+	{						// copy the buffer
+		strcpy(A[i], buff);			// into an array;
+		i++;					// increment array
 	}
 
-	_pclose(run);
+	_pclose(run);					// close the process
 
-	// get size of array
-	size_of_array = i;
+	size_of_array = i;				// get size of array
 
 	for (i = 0; i < size_of_array; i++)
 	{
-		// copy or add into a string
-		strcat(string, A[i]);
+		strcat(string, A[i]);			// copy or add into a string
 	}
 
-	// send the output back to the client
-	return string;
+	return string;					// return the output
 }
 
+// this handles incoming client connections
 DWORD WINAPI client_handler(void * tcp_socket)
 {
 	int sock = *(int*)tcp_socket;
@@ -89,6 +80,7 @@ DWORD WINAPI client_handler(void * tcp_socket)
 	if (uflag != NULL && cflag == 0 && eflag == NULL)
 	{
 		FILE * file = fopen(uflag, "w+b");
+
 		// keep reading data until none is available
 		recv(sock, response, RESP_SIZE, 0);
 
@@ -167,6 +159,7 @@ int server_loop(char * tflag, int pflag)
 		nsock = malloc(1);
 		*nsock = new_socket;
 
+		// spin off a thread to handle our new client
 		CreateThread(0,0,&client_handler, (void*)nsock, 0,0);
 	}
 }

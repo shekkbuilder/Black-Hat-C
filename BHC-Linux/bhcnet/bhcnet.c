@@ -46,59 +46,48 @@ int	cflag = 0;		// Command
 char * run_command(char response[RESP_SIZE])
 {
 	FILE * run;
-	extern FILE *popen();
-	char buff[6000];
 
-	// loop and size of array
-	int i=0, size_of_array;
-	// array for captured buffer
-	char A[1000][1000];
-	// store the array into a string
-	static char string[1000];
+	char buff[RESP_SIZE];
 
-	// zero out
-	memset(string,0,sizeof(string));
+	int i=0, size_of_array;			// loop and size of array
+	char A[1000][1000];			// array for captured buffer
+	static char string[1000];		// store the array into a string
 
-	// run the command and get the output back
-	run = popen(response, "r");
+	memset(string,0,sizeof(string));	// zero out
 
-	while(fgets(buff, sizeof(buff), run)!=NULL)
-	{
-		// copy buff into array
-		strcpy(A[i], buff);
-		i++;
+	run = popen(response, "r");		// run the command
+
+	while(fgets(buff, sizeof(buff), run)!=NULL)	// loop and then
+	{						// copy the buffer
+		strcpy(A[i], buff);			// into an array;
+		i++;					// increment array
 	}
 
-	pclose(run);
+	pclose(run);					// close the process
 
-	// get size of array
-	size_of_array = i;
+	size_of_array = i;				// get size of array
 
 	for (i = 0; i < size_of_array; i++)
 	{
-		// copy or add into a string
-		strcat(string, A[i]);
+		strcat(string, A[i]);			// copy or add into a string
 	}
 
-	// send the output back to the client
-	return string;
+	return string;					// return the output
 
 }
 
 // this handles incoming client connections
 void * client_handler(void * tcp_socket)
 {
-	// get the socket descriptor
 	int sock = *(int*)tcp_socket;
-	// response
 	char response[RESP_SIZE];
-	// get return
 	char ret[5000];
 
 	// check for upload
 	if (uflag != NULL && cflag == 0 && eflag == NULL)
 	{
 		FILE * file = fopen(uflag, "w+b");
+
 		// keep reading data until none is available
 		recv(sock, response, RESP_SIZE, 0);
 
