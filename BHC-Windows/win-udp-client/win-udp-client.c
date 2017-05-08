@@ -1,6 +1,6 @@
 /*
 
-Executable name : udp_wclient
+Executable name : win-udp-client
 Designed OS     : Windows
 Version         : 1.0
 Created date    : 5/2/2017
@@ -16,25 +16,36 @@ Description     : A simple UDP client that connects to localhost
 #include <stdio.h>
 #include <winsock2.h>
 
-#define TARGET_HOST "127.0.0.1"
+#define TARGET_HOST "192.168.0.16"//"127.0.0.1"
 #define TARGET_PORT 7891
 
 int main()
 {
+	/*
+	WSADATA         : structure for WinSock setup communication
+	WSAStartup()    : load winsock 2.0 dll
+	*/
 	WSADATA wsa;
-	SOCKET udp_socket;
+	WSAStartup(MAKEWORD(2,2),&wsa);
+
+	/*
+	udp_socket      : socket descriptor for client
+	server          : local address
+	*/
+	int udp_socket;
 	struct sockaddr_in server;
 	char * data, response[2000];
 
-	// Initialise Winsock
-	WSAStartup(MAKEWORD(2,2),&wsa);
-
-	// UDP Socket (AF_INET -> IPV4, SOCK_DGRAM -> UDP, 0 -> IP protocol)
+	/*
+	AF_INET         : IPv4
+	SOCK_DGRAM	: UDP
+	0               : IP Protocol
+	*/
 	udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
 
-	server.sin_addr.s_addr = inet_addr(TARGET_HOST); // host
-	server.sin_family = AF_INET; // ipv4
-	server.sin_port = htons(TARGET_PORT); // port
+	server.sin_addr.s_addr = inet_addr(TARGET_HOST);	// interface
+	server.sin_family = AF_INET;				// internet address family
+	server.sin_port = htons(TARGET_PORT);			// bind port
 
 	// data to be sent
 	data = "wetw0rk can you hear me?\r\n";

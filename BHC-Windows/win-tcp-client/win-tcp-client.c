@@ -1,10 +1,10 @@
 /*
 
-Executable name : tcp_wclient
+Executable name : win-tcp-client
 Designed OS     : Windows
-Version         : 1.0
+Version         : 2.0
 Created date    : 5/1/2017
-Last update     : 5/1/2017
+Last update     : 5/7/2017
 Author          : Milton Valencia (wetw0rk)
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
@@ -22,20 +22,30 @@ Description     : A simple TCP client that connects to google
 
 int main()
 {
+	/*
+	WSADATA         : structure for WinSock setup communication
+	WSAStartup()    : load winsock 2.0 dll
+	*/
 	WSADATA wsa;
-	SOCKET tcp_socket;
+	WSAStartup(MAKEWORD(2,2),&wsa);
+	/*
+	tcp_socket      : socket descriptor for client
+	server          : local address
+	*/
+	int tcp_socket;
 	struct sockaddr_in server;
 	char * data, response[2000];
 
-	// Initialise Winsock
-	WSAStartup(MAKEWORD(2,2),&wsa);
-
-	// TCP socket (AF_INET -> IPV4, SOCK_STREAM -> TCP, 0 -> IP protocol)
+	/*
+	AF_INET         : IPv4
+	SOCK_STREAM     : TCP
+	0               : IP Protocol
+	*/
 	tcp_socket = socket(AF_INET , SOCK_STREAM , 0);
 
-	server.sin_addr.s_addr = inet_addr(TARGET_HOST); // host
-	server.sin_family = AF_INET; // ipv4
-	server.sin_port = htons(TARGET_PORT); // port
+	server.sin_addr.s_addr = inet_addr(TARGET_HOST);	// interface
+	server.sin_family = AF_INET;				// internet address family
+	server.sin_port = htons(TARGET_PORT);			// bind port
 
 	connect(tcp_socket,
 		(struct sockaddr *)&server,
