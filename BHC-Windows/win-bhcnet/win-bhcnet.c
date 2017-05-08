@@ -1,39 +1,34 @@
 /*
 
-Executable name : bhcnet
-Designed OS     : Linux
+Executable name : win-bhcnet
+Designed OS     : Windows
 Version         : 1.0
 Created date    : 5/7/2017
 Last update     : 5/7/2017
 Author          : Milton Valencia (wetw0rk)
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
-Description     : Basically a custom netcat just like bhpnet. Since
-		  the goal is to replicate the structure like bhpnet
-                  i did not include any custom options, however they
-                  can be easily installed by you; the user. This is a
-		  great "skeleton" for something much bigger if you
-                  would like to take it that route. Note: depending
-		  on file size, if uploading a file change the RESP_SIZE
-                  accordingly. Tested binarys and .txt files.
+Description     : Took less than 30min to write. Not bragging but
+                  again this is why I wanted to do this project;
+                  easy reference dont think about bhcnet. Think of the
+                  what could be built upon this. what you could create!
+                  Incase its not obvous this is a custom netcat designed
+		  for windows
 
 */
 
+
 #include <stdio.h>
-#include <getopt.h>
-#include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
+#include <getopt.h>
+#include <winsock2.h>
+#include <windows.h>
 
 #define BUFF_SIZE 5000
 #define RESP_SIZE 4096
 
 // define some global variables (0 == false)
-void    usage(void);		// Usage
+void	usage(void);		// Usage
 char	buffer[BUFF_SIZE];	// Buffer
 char	*tflag;			// Target
 char	*uflag;			// Upload
@@ -46,8 +41,8 @@ int	cflag = 0;		// Command
 char * run_command(char response[RESP_SIZE])
 {
 	FILE * run;
-	extern FILE *popen();
-	char buff[6000];
+
+	char buff[RESP_SIZE];
 
 	// loop and size of array
 	int i=0, size_of_array;
@@ -60,7 +55,7 @@ char * run_command(char response[RESP_SIZE])
 	memset(string,0,sizeof(string));
 
 	// run the command and get the output back
-	run = popen(response, "r");
+	run = _popen(response, "r");
 
 	while(fgets(buff, sizeof(buff), run)!=NULL)
 	{
@@ -69,7 +64,7 @@ char * run_command(char response[RESP_SIZE])
 		i++;
 	}
 
-	pclose(run);
+	_pclose(run);
 
 	// get size of array
 	size_of_array = i;
@@ -82,18 +77,13 @@ char * run_command(char response[RESP_SIZE])
 
 	// send the output back to the client
 	return string;
-
 }
 
-// this handles incoming client connections
-void * client_handler(void * tcp_socket)
+DWORD WINAPI client_handler(void * tcp_socket)
 {
-	// get the socket descriptor
 	int sock = *(int*)tcp_socket;
-	// response
 	char response[RESP_SIZE];
-	// get return
-	char ret[5000];
+	char ret[RESP_SIZE];
 
 	// check for upload
 	if (uflag != NULL && cflag == 0 && eflag == NULL)
@@ -106,7 +96,6 @@ void * client_handler(void * tcp_socket)
 		fwrite(response, sizeof(char), sizeof(response), file);
 		fclose(file);
 		exit(0);
-
 	}
 
 	// check for command execution
@@ -115,7 +104,7 @@ void * client_handler(void * tcp_socket)
 		// run the command
 		strcat(ret, run_command(eflag));
 
-		write(sock, ret, strlen(ret));
+		send(sock, ret, strlen(ret), 0);
 	}
 
 	// now we go into another loop if a command shell was requested
@@ -124,11 +113,10 @@ void * client_handler(void * tcp_socket)
 		while(1)
 		{
 			// show a simple prompt
-			write(sock, "<BHC:#> ", 9);
+			send(sock, "<BHC:#> ", 9, 0);
 
 			// now we receive until we see a linefeed (enter key)
 			do {
-
 				recv(sock, response, RESP_SIZE, 0);
 
 			} while (!strchr((response), '\n'));
@@ -137,7 +125,7 @@ void * client_handler(void * tcp_socket)
 			strcat(ret, run_command(response));
 
 			// send back the response
-			write(sock, ret, strlen(ret));
+			send(sock, ret, strlen(ret), 0);
 
 			// zero out
 			memset(response,0,sizeof(response));
@@ -151,6 +139,9 @@ int server_loop(char * tflag, int pflag)
 {
 	int tcp_socket,new_socket, c, *nsock;
 	struct sockaddr_in server, client;
+
+	WSADATA wsa;
+	WSAStartup(MAKEWORD(2,2), &wsa);
 
 	tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -167,19 +158,16 @@ int server_loop(char * tflag, int pflag)
 	}
 
 	server.sin_port = htons(pflag);
-
 	bind(tcp_socket,(struct sockaddr *)&server, sizeof(server));
 	listen(tcp_socket, 5);
 
 	c = sizeof(struct sockaddr_in);
-	while((new_socket = accept(tcp_socket, (struct sockaddr *)&client, (socklen_t*)&c)))
+	while((new_socket = accept(tcp_socket, (struct sockaddr *)&client, &c)))
 	{
-		pthread_t sniffer_thread;
 		nsock = malloc(1);
 		*nsock = new_socket;
 
-		// spin off a thread to handle our new client
-		pthread_create(&sniffer_thread, NULL, client_handler, (void*) nsock);
+		CreateThread(0,0,&client_handler, (void*)nsock, 0,0);
 	}
 }
 
@@ -189,6 +177,9 @@ int client_sender(char *tflag, int pflag, char *buffer)
 	int tcp_socket, recv_len;
 	struct sockaddr_in server;
 	char response[RESP_SIZE];
+
+	WSADATA wsa;
+	WSAStartup(MAKEWORD(2,2),&wsa);
 
 	tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -236,20 +227,19 @@ int client_sender(char *tflag, int pflag, char *buffer)
 
 void usage(void)
 {
-	printf("BHC Net Tool\n\n");
-	printf("Usage: bhcnet -t target_host -p port\n");
+	printf("WIN-BHC Net Tool\n\n");
+	printf("Usage: win-bhcnet -t target_host -p port\n");
 	printf("-l --listen              - listen on [host]:[port] for incoming connections\n");
 	printf("-e --execute file_to_run - execute the given file upon receiving a connection\n");
 	printf("-c --command             - initialize a command shell\n");
 	printf("-u --upload destination  - upon receiving a connection upload a file and write to [destination]\n\n");
 	printf("Examples:\n");
-	printf("bhcnet -t 192.168.0.1 -p 5555 -l -c\n");
-	printf("bhcnet -t 192.168.0.1 -p 5555 -l -u /root/sploit.out\n");
-	printf("bhcnet -t 192.168.0.1 -p 5555 -l -e \"cat /etc/passwd\"\n");
+	printf("win-bhcnet -t 192.168.0.1 -p 5555 -l -c\n");
+	printf("win-bhcnet -t 192.168.0.1 -p 5555 -l -u C:\\target.exe\n");
+	printf("win-bhcnet -t 192.168.0.1 -p 5555 -l -e ipconfig\n");
 	printf("echo 'ABCDEFGHI' | ./bhcnet -t 192.168.11.12 -p 135\n");
-	exit(1);
+	exit(0);
 }
-
 
 int main(int argc, char * argv[])
 {
@@ -265,7 +255,7 @@ int main(int argc, char * argv[])
 		{"upload",      required_argument,      0,      'u'},
 		{"target",      required_argument,      0,      't'},
 		{"port",        required_argument,      0,      'p'},
-		{0,		0,			0,	0}
+		{0,             0,                      0,      0}
 	};
 
 	int long_index = 0;

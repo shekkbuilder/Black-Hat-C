@@ -16,7 +16,7 @@ Description     : A simple UDP client that connects to localhost
 #include <stdio.h>
 #include <winsock2.h>
 
-#define TARGET_HOST "192.168.0.16"//"127.0.0.1"
+#define TARGET_HOST "127.0.0.1"
 #define TARGET_PORT 7891
 
 int main()
