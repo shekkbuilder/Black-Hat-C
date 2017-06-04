@@ -2,9 +2,9 @@
 
 Executable name : tcp-server
 Designed OS     : Linux
-Version         : 3.0
+Version         : 4.0
 Created date    : 4/5/2017
-Last update     : 5/2/2017
+Last update     : 6/4/2017
 Author          : Milton Valencia (wetw0rk)
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
@@ -29,13 +29,12 @@ Description     : A simple TCP server that accepts a response from
 void * handle_client(void * tcp_socket)
 {
 	int sock = *(int*)tcp_socket;		// get the socket descriptor
-	char * data, response[2000];		// size of recieve buffer
+	char data[]= "ACK!\n", response[4096];	// data sent and response capture buffer
 
-	recv(sock, response, 2000, 0);		// receive message from client
+	recv(sock, response, 4096, 0);		// receive message from client
 	printf("[*] Received: %s\n", response);	// print message
 
-	data = "ACK!\n";			// send back a packet
-	write(sock, data, strlen(data));
+	write(sock, data, strlen(data));	// send the message
 
 	close(sock); 				// close client socket
 

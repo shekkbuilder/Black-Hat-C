@@ -108,7 +108,7 @@ void * proxy_handler(void * arguments)
 
 	int remote_socket;
 	struct sockaddr_in remote_sock;
-	char * data, local_buffer[BUFF_SIZE], remote_buffer[BUFF_SIZE];
+	char local_buffer[BUFF_SIZE], remote_buffer[BUFF_SIZE];
 
 	// Connect to the remote host
 	remote_socket  = socket(AF_INET, SOCK_STREAM, 0);
@@ -117,9 +117,7 @@ void * proxy_handler(void * arguments)
 	remote_sock.sin_family = AF_INET;
 	remote_sock.sin_port = htons(args->rp);
 
-	connect(remote_socket,
-		(struct sockaddr *)&remote_sock,
-		sizeof(remote_sock));
+	connect(remote_socket,(struct sockaddr *)&remote_sock,sizeof(remote_sock));
 
 	// receive data from the remote end if necessary
 	if (args->rf == 1)
@@ -158,12 +156,10 @@ void * proxy_handler(void * arguments)
 			// send off the data to the remote host
 			send(remote_socket, local_buffer, strlen(local_buffer), 0);
 			printf("[==>] Sent to remote.\n");
-
 		}
 
 		// receive back the response
 		recv(remote_socket, remote_buffer, BUFF_SIZE, 0);
-
 		if (strlen(remote_buffer) > 1)
 		{
 			printf("[<==] Received %zu bytes from remote.\n",
@@ -174,10 +170,9 @@ void * proxy_handler(void * arguments)
 			response_handler(remote_buffer);
 
 			// send the response to the local socket
-			write(client_socket, remote_buffer, strlen(remote_buffer));
+			send(client_socket, remote_buffer, strlen(remote_buffer), 0);
 
 			printf("[<==] Sent to localhost.\n");
-
 		}
 
 		// if no more data on either side, close the connections
@@ -188,12 +183,15 @@ void * proxy_handler(void * arguments)
 			printf("[*] No more data. Closing connections.");
 			break;
 		}
+
+		memset(remote_buffer,0,sizeof(remote_buffer));  // zero out
+                memset(local_buffer,0,sizeof(local_buffer));    // zero out
 	}
 }
 
 int server_loop(char *local_host, int local_port, char *remote_host, int remote_port, int receive_flag)
 {
-	int server_socket, client_socket, client_len, *nsock;
+	int server_socket, client_socket, client_len;
 	struct sockaddr_in server, client;
 	struct argv_struct argv;
 

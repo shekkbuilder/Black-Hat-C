@@ -2,9 +2,9 @@
 
 Executable name : udp-client
 Designed OS     : Linux
-Version         : 4.0
+Version         : 5.0
 Created date    : 4/5/2017
-Last update     : 5/7/2017
+Last update     : 6/4/2017
 Author          : Milton Valencia (wetw0rk)
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
@@ -26,11 +26,13 @@ int main()
 {
 	/*
 	udp_socket      : socket descriptor for client
-	server          : local address
+	client          : local address
+	data            : data to be sent
+	response        : where we will capture the response
 	*/
 	int udp_socket;
-	struct sockaddr_in server;
-	char * data, response[2000];
+	struct sockaddr_in client;
+	char data[]="wetw0rk can you hear me?\r\n", response[4096];
 
 	/*
 	AF_INET         : IPv4
@@ -39,19 +41,15 @@ int main()
 	*/
 	udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
 
-	server.sin_addr.s_addr = inet_addr(TARGET_HOST);	// interface
-	server.sin_family = AF_INET;				// internet address family
-	server.sin_port = htons(TARGET_PORT);			// bind port
-
-	// data to be sent
-	data = "wetw0rk can you hear me?\r\n";
+	client.sin_addr.s_addr = inet_addr(TARGET_HOST);	// interface
+	client.sin_family = AF_INET;				// internet address family
+	client.sin_port = htons(TARGET_PORT);			// bind port
 
 	// send the data upon connection
-	sendto(udp_socket, data, strlen(data), 0,
-		(struct sockaddr *)&server, sizeof(server));
+	sendto(udp_socket, data, strlen(data), 0,(struct sockaddr *)&client, sizeof(client));
 
 	// recieve data and print it
-	recvfrom(udp_socket, response, 2000, 0, NULL, NULL);
+	recvfrom(udp_socket, response, 4096, 0, NULL, NULL);
 	puts(response);
 
 	return(0);

@@ -81,7 +81,7 @@ void * client_handler(void * tcp_socket)
 {
 	int sock = *(int*)tcp_socket;
 	char response[RESP_SIZE];
-	char ret[5000];
+	char ret[BUFF_SIZE];
 
 	// check for upload
 	if (uflag != NULL && cflag == 0 && eflag == NULL)
@@ -138,7 +138,7 @@ void * client_handler(void * tcp_socket)
 // this is for incoming connections
 int server_loop(char * tflag, int pflag)
 {
-	int tcp_socket,new_socket, c, *nsock;
+	int tcp_socket, new_socket, c, *nsock;
 	struct sockaddr_in server, client;
 
 	tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
