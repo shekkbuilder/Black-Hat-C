@@ -14,6 +14,8 @@ Description     : This proxy an be used for many things like, forwarding
 		  ./proxy 127.0.0.1 21 <target> 21 True <-- Terminal 1
                   ftp 127.0.0.1	<-- Terminal 2
 
+Reviewed by     : https://github.com/N4ss4r/
+
 */
 
 #include <stdio.h>

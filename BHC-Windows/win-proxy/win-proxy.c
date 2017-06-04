@@ -112,7 +112,7 @@ DWORD WINAPI proxy_handler(void * arguments)
 
 	int remote_socket;
 	struct sockaddr_in remote_sock;
-	char * data, local_buffer[BUFF_SIZE], remote_buffer[BUFF_SIZE];
+	char local_buffer[BUFF_SIZE], remote_buffer[BUFF_SIZE];
 
 	// Connect to the remote host
 	remote_socket  = socket(AF_INET, SOCK_STREAM, 0);
