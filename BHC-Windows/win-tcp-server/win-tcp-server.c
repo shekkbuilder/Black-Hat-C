@@ -5,7 +5,7 @@ Designed OS     : Windows
 Version         : 1.0
 Created date    : 5/7/2017
 Last update     : 5/7/2017
-Author          : Milton Valencia (wetw0rk)
+Author          : wetw0rk
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
 Description     : A simple TCP server that accepts a response from

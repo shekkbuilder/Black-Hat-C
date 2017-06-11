@@ -5,7 +5,7 @@ Designed OS     : Linux
 Version         : 4.0
 Created date    : 4/5/2017
 Last update     : 6/4/2017
-Author          : Milton Valencia (wetw0rk)
+Author          : wetw0rk
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
 Description     : A simple TCP server that accepts a response from

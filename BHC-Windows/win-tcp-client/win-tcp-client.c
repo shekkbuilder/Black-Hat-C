@@ -5,7 +5,7 @@ Designed OS     : Windows
 Version         : 2.0
 Created date    : 5/1/2017
 Last update     : 5/7/2017
-Author          : Milton Valencia (wetw0rk)
+Author          : wetw0rk
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
 Description     : A simple TCP client that connects to google

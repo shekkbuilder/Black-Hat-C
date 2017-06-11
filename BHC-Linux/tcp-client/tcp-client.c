@@ -5,7 +5,7 @@ Designed OS     : Linux
 Version         : 5.0
 Created date    : 4/5/2017
 Last update     : 6/7/2017
-Author          : Milton Valencia (wetw0rk)
+Author          : wetw0rk
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
 Description     : A simple TCP client that connects to google
