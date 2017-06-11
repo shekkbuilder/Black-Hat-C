@@ -47,9 +47,7 @@ int main()
 	server.sin_family = AF_INET;				// internet address family
 	server.sin_port = htons(TARGET_PORT);			// bind port
 
-	connect(tcp_socket,
-		(struct sockaddr *)&server,
-		sizeof(server));
+	connect(tcp_socket,(struct sockaddr *)&server,sizeof(server));
 
 	// data to be sent
 	data = "GET / HTTP/1.1\r\n\r\n";

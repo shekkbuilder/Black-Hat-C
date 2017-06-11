@@ -2,9 +2,9 @@
 
 Executable name : bhcnet
 Designed OS     : Linux
-Version         : 1.0
+Version         : 2.0
 Created date    : 5/7/2017
-Last update     : 5/7/2017
+Last update     : 7/11/2017
 Author          : wetw0rk
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
@@ -82,6 +82,7 @@ void * client_handler(void * tcp_socket)
 	int sock = *(int*)tcp_socket;
 	char response[RESP_SIZE];
 	char ret[BUFF_SIZE];
+	ssize_t bytes_read;
 
 	// check for upload
 	if (uflag != NULL && cflag == 0 && eflag == NULL)
@@ -89,10 +90,10 @@ void * client_handler(void * tcp_socket)
 		FILE * file = fopen(uflag, "w+b");
 
 		// keep reading data until none is available
-		recv(sock, response, RESP_SIZE, 0);
+		bytes_read = recv(sock, response, RESP_SIZE, 0);
 
 		// now we take these bytes and try to write them out
-		fwrite(response, sizeof(char), sizeof(response), file);
+		fwrite(response, sizeof(char), bytes_read, file);
 		fclose(file);
 		exit(0);
 
@@ -178,6 +179,7 @@ int client_sender(char *tflag, int pflag, char *buffer)
 	int tcp_socket, recv_len;
 	struct sockaddr_in server;
 	char response[RESP_SIZE];
+	ssize_t bytes_read;
 
 	tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -186,9 +188,7 @@ int client_sender(char *tflag, int pflag, char *buffer)
 	server.sin_port = htons(pflag);
 
 	// connect to our target host
-	connect(tcp_socket,
-		(struct sockaddr *)&server,
-		sizeof(server));
+	connect(tcp_socket,(struct sockaddr *)&server,sizeof(server));
 
 	// if we detect input from stdin send it
 	// if not we are going to wait for the user to punch some in
@@ -204,8 +204,8 @@ int client_sender(char *tflag, int pflag, char *buffer)
 
 		while(recv_len)
 		{
-			recv(tcp_socket, response, RESP_SIZE, 0);
-			recv_len = strlen(response);
+			bytes_read = recv(tcp_socket, response, RESP_SIZE, 0);
+			recv_len = bytes_read;
 
 			if (recv_len < RESP_SIZE)
 			{
@@ -284,6 +284,12 @@ int main(int argc, char * argv[])
 				pflag = atoi(optarg);
 				break;
 		}
+	}
+
+
+	if (argc <= 1)
+	{
+		usage();
 	}
 
 	// are we going to listen or just send data from stdin?

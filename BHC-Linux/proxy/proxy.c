@@ -2,9 +2,9 @@
 
 Executable name : proxy
 Designed OS     : Linux
-Version         : 1.0
+Version         : 2.0
 Created date    : 5/23/2017
-Last update     : 5/23/2017
+Last update     : 7/11/2017
 Author          : wetw0rk
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
@@ -112,6 +112,8 @@ void * proxy_handler(void * arguments)
 	struct sockaddr_in remote_sock;
 	char local_buffer[BUFF_SIZE], remote_buffer[BUFF_SIZE];
 
+	ssize_t bytes_read;
+
 	// Connect to the remote host
 	remote_socket  = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -124,18 +126,17 @@ void * proxy_handler(void * arguments)
 	// receive data from the remote end if necessary
 	if (args->rf == 1)
 	{
-		recv(remote_socket, remote_buffer, BUFF_SIZE, 0);
-		hexdump(remote_buffer, &remote_buffer, strlen(remote_buffer));
+		bytes_read = recv(remote_socket, remote_buffer, BUFF_SIZE, 0);
+		hexdump(remote_buffer, &remote_buffer, bytes_read);
 
 		// send it to our response handler
 		response_handler(remote_buffer);
 
 		// if we have data to send to our local client, send it
-		if (strlen(remote_buffer) >  1)
+		if (bytes_read >  1)
 		{
-			printf("[<==] Sending %zu bytes to localhost.\n",
-				strlen(remote_buffer));
-			write(client_socket, remote_buffer, strlen(remote_buffer));
+			printf("[<==] Sending %zu bytes to localhost.\n", bytes_read);
+			write(client_socket, remote_buffer, bytes_read);
 		}
 	}
 	// now lets loop and read from local,
@@ -144,50 +145,45 @@ void * proxy_handler(void * arguments)
 	while(1)
 	{
 		// read from local host
-		recv(client_socket, local_buffer, BUFF_SIZE, 0);
+		bytes_read = recv(client_socket, local_buffer, BUFF_SIZE,0);
 
-		if (strlen(local_buffer) > 1)
+		if (bytes_read > 1)
 		{
-			printf("[==>] Received %zu bytes from localhost.\n",
-				strlen(local_buffer));
+			printf("[==>] Received %zu bytes from localhost.\n", bytes_read);
 
-			hexdump(local_buffer, &local_buffer, strlen(local_buffer));
+			hexdump(local_buffer, &local_buffer, bytes_read);
 			// send it to our request handler
 			request_handler(local_buffer);
 
 			// send off the data to the remote host
-			send(remote_socket, local_buffer, strlen(local_buffer), 0);
+			send(remote_socket, local_buffer, bytes_read, 0);
 			printf("[==>] Sent to remote.\n");
 		}
 
 		// receive back the response
-		recv(remote_socket, remote_buffer, BUFF_SIZE, 0);
-		if (strlen(remote_buffer) > 1)
+		bytes_read = recv(remote_socket, remote_buffer, BUFF_SIZE,0);
+		if (bytes_read > 1)
 		{
-			printf("[<==] Received %zu bytes from remote.\n",
-				strlen(remote_buffer));
-			hexdump(remote_buffer, &remote_buffer, strlen(remote_buffer));
+			printf("[<==] Received %zu bytes from remote.\n", bytes_read);
+			hexdump(remote_buffer, &remote_buffer, bytes_read);
 
 			// send to our response handler
 			response_handler(remote_buffer);
 
 			// send the response to the local socket
-			send(client_socket, remote_buffer, strlen(remote_buffer), 0);
+			send(client_socket, remote_buffer, bytes_read, 0);
 
 			printf("[<==] Sent to localhost.\n");
 		}
 
 		// if no more data on either side, close the connections
-		if (strlen(remote_buffer) <= 0 && strlen(local_buffer) <= 0)
+		if (bytes_read <= 0)
 		{
 			close(client_socket);
 			close(remote_socket);
 			printf("[*] No more data. Closing connections.");
 			break;
 		}
-
-		memset(remote_buffer,0,sizeof(remote_buffer));  // zero out
-                memset(local_buffer,0,sizeof(local_buffer));    // zero out
 	}
 }
 

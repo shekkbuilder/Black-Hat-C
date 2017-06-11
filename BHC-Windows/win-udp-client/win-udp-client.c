@@ -2,9 +2,9 @@
 
 Executable name : win-udp-client
 Designed OS     : Windows
-Version         : 1.0
+Version         : 2.0
 Created date    : 5/2/2017
-Last update     : 5/2/2017
+Last update     : 7/11/2017
 Author          : wetw0rk
 Inspired by     : Black Hat Python
 GCC Version     : 6.3.0
@@ -51,8 +51,7 @@ int main()
 	data = "wetw0rk can you hear me?\r\n";
 
 	// send the data upon connection
-	sendto(udp_socket, data, strlen(data), 0,
-		(struct sockaddr *)&server, sizeof(server));
+	sendto(udp_socket, data, strlen(data), 0,(struct sockaddr *)&server, sizeof(server));
 
 	// recieve data and print it
 	recvfrom(udp_socket, response, 2000, 0, NULL, NULL);
